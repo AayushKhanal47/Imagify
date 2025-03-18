@@ -6,6 +6,7 @@ import Testimonials from "../components/Testimonials";
 import GenerateButton from "../components/GenerateButton";
 
 
+
 const Home = () => {
   return (
     <div>
@@ -14,6 +15,7 @@ const Home = () => {
       <Description/>
       <Testimonials/>
       <GenerateButton/>
+  
 
     </div>
   );
