@@ -1,10 +1,16 @@
-import React from 'react'
+import React from "react";
 import { assets } from "../assets/assets";
-
+import { motion } from "framer-motion";
 
 const Header = () => {
   return (
-    <div className="flex flex-col justify-center items-center text-center my-20">
+    <motion.div
+      className="flex flex-col justify-center items-center text-center my-20"
+      initial={{ opacity: 0.2, y: 100 }}
+      transition={{ duration: 1 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
       <div className="text-stone-500 inline-flex text-center gap-2 bg-white px-6 py-1 rounded-full border border-neutral-500">
         <p>Best text to image generator</p>
         <img src={assets.star_icon} alt="" />
@@ -18,18 +24,26 @@ const Header = () => {
         technology brings it to life with breathtaking visuals. Start creating
         now! 🚀
       </p>
-      <button className="sm:text-lg text-white bg-black w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full">Genrate Images
+      <button className="sm:text-lg text-white bg-black w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full">
+        Genrate Images
         <img className="h-8" src={assets.star_group} alt="" />
       </button>
       <div className="flex flex-wrap justify-center mt-16 gap-3">
-  {Array(6).fill(null).map((_, index) => (
-    <img  className="rounded hover:scale-105 transition-all duration-300 cursor-pointer max-sm:w-10" src={index%2===0 ? assets.sample_img_2 : assets.sample_img_1} alt="" key={index} width={70} />
-  ))}
-</div>
-<p className="mt-2 text-neutral-600 ">Generated images from imagify</p>
+        {Array(6)
+          .fill(null)
+          .map((_, index) => (
+            <img
+              className="rounded hover:scale-105 transition-all duration-300 cursor-pointer max-sm:w-10"
+              src={index % 2 === 0 ? assets.sample_img_2 : assets.sample_img_1}
+              alt=""
+              key={index}
+              width={70}
+            />
+          ))}
+      </div>
+      <p className="mt-2 text-neutral-600 ">Generated images from imagify</p>
+    </motion.div>
+  );
+};
 
-    </div>
-  )
-}
-
-export default Header
+export default Header;
