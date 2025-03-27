@@ -2,9 +2,54 @@ import React, { useContext } from "react";
 import { assets, plans } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const BuyCredits = () => {
-  const { user } = useContext(AppContext);
+  const { user, backendUrl, loadCreditsData, token, setShowLogin } =
+    useContext(AppContext);
+  const navigate = useNavigate();
+
+  const initPay = async (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: "Credits Payment",
+      description: "Credits Payment",
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+      },
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
+  const paymentRazorpay = async (planId) => {
+    try {
+      if (!user) {
+        setShowLogin(true);
+        return;
+      }
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/user/pay-razor`,
+        { planId },
+        { headers: { token } }
+      );
+
+      if (data.success) {
+        initPay(data.order);
+      } else {
+        toast.error("Payment initiation failed.");
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <motion.div
@@ -50,6 +95,7 @@ const BuyCredits = () => {
             </p>
 
             <motion.button
+              onClick={() => paymentRazorpay(item.id)}
               className="w-full bg-gray-800 text-white mt-8 text-sm rounded-full py-3 hover:bg-black transition duration-300"
               whileTap={{ scale: 0.95 }}
             >
