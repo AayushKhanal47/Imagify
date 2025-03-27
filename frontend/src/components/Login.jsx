@@ -3,7 +3,7 @@ import { assets } from "../assets/assets";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-// import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const [state, setState] = useState("Login");
