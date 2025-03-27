@@ -31,7 +31,6 @@ export const registerUser = async (req, res) => {
       user: { name: user.name, email: user.email },
     });
   } catch (error) {
-    console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -39,7 +38,6 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await userModel.findOne({ email });
     if (!user) {
       return res.json({ success: false, message: "User does not exist" });
@@ -57,7 +55,6 @@ export const loginUser = async (req, res) => {
       res.json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
-    console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -72,7 +69,6 @@ export const userCredits = async (req, res) => {
       user: { name: user.name },
     });
   } catch (error) {
-    console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -118,13 +114,49 @@ export const paymentRazorpay = async (req, res) => {
 
     razorpayInstance.orders.create(options, (error, order) => {
       if (error) {
-        console.log(error);
         return res.json({ success: false, message: error.message });
       }
       res.json({ success: true, order });
     });
   } catch (error) {
-    console.log(error);
     res.json({ success: false, message: error.message });
+  }
+};
+
+export const verifyRazorpay = async (req, res) => {
+  try {
+    const { razorpay_order_id } = req.body;
+
+    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+    if (!orderInfo || orderInfo.status !== "paid") {
+      return res.json({ success: false, message: "Payment Failed" });
+    }
+
+    const transactionData = await transactionModel.findById(orderInfo.receipt);
+    if (!transactionData || transactionData.payment) {
+      return res.json({
+        success: false,
+        message: "Transaction Not Found or Already Processed",
+      });
+    }
+
+    const userData = await userModel.findById(transactionData.userId);
+    if (!userData) {
+      return res.json({ success: false, message: "User Not Found" });
+    }
+
+    const updatedCredits =
+      (userData.creditBalance || 0) + transactionData.credits;
+    await userModel.findByIdAndUpdate(userData._id, {
+      creditBalance: updatedCredits,
+    });
+
+    await transactionModel.findByIdAndUpdate(transactionData._id, {
+      payment: true,
+    });
+
+    res.json({ success: true, message: "Credits Added Successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
